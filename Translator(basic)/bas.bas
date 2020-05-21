@@ -1,0 +1,7 @@
+10 REM  Это комментарий
+20 INPUT A
+30 INPUT B
+35 IF 0 < B
+40 GOTO 20
+60 PRINT C
+70 END
