@@ -41,106 +41,79 @@ int chek_arg(int argc, char *argv[])
     }
 }
 
+void succes(char str[]){
+    mt_setfgcolor(green);
+    printf("%s",str);
+    mt_setfgcolor(reset);
+    printf("\n");
+}
+
+void error_pr(char str[]){
+    mt_setfgcolor(red);
+    printf("%s",str);
+    mt_setfgcolor(reset);
+    printf("\n");
+    exit(EXIT_FAILURE);
+}
+
 int error_handler(int error)
 {
     switch (error)
     {
     case SUCCESSFULLY:
     {
-        mt_setfgcolor(green);
-        printf("FILE FOUND");
-        mt_setfgcolor(reset);
-        printf("\n");
+        succes("FILE FOUND");
         return 0;
         break;
     }
     case INVALID_NUMBER_OF_ARGUMENTS:
     {
-        mt_setfgcolor(red);
-        printf("INVALID NUMBER OF ARGUMENTS");
-        mt_setfgcolor(reset);
-        printf("\n");
-        exit(EXIT_FAILURE);
+        error_pr("INVALID NUMBER OF ARGUMENTS");
         break;
     }
     case INVALID_SIZE_OF_ARGUMENTS:
     {
-        mt_setfgcolor(red);
-        printf("INVALID SIZE OF ARGUMENTS");
-        mt_setfgcolor(reset);
-        printf("\n");
-        exit(EXIT_FAILURE);
+        error_pr("INVALID SIZE OF ARGUMENTS");
         break;
     }
     case WRONG_EXTENSION:
     {
-        mt_setfgcolor(red);
-        printf("WRONG EXTENSION");
-        mt_setfgcolor(reset);
-        printf("\n");
-        exit(EXIT_FAILURE);
+        error_pr("WRONG EXTENSION");
         break;
     }
     case FILE_NOT_FOUND:
     {
-        mt_setfgcolor(red);
-        printf("ASSEMBLER FILE NOT FOUND");
-        mt_setfgcolor(reset);
-        printf("\n");
-        exit(EXIT_FAILURE);
+        error_pr("ASSEMBLER FILE NOT FOUND");
         break;
     }
     case EMPTY_FILE:
     {
-        mt_setfgcolor(red);
-        printf("EMPTY FILE");
-        mt_setfgcolor(reset);
-        printf("\n");
-        exit(EXIT_FAILURE);
+        error_pr("EMPTY FILE");
         break;
     }
     case COMMAND_NOT_FOUND:
     {
-        mt_setfgcolor(red);
-        printf("COMMAND NOT FOUND");
-        mt_setfgcolor(reset);
-        printf("\n");
-        exit(EXIT_FAILURE);
+        error_pr("COMMAND NOT FOUND");
         break;
     }
     case ERROR_ENCODE:
     {
-        mt_setfgcolor(red);
-        printf("ERROR ENCODE");
-        mt_setfgcolor(reset);
-        printf("\n");
-        exit(EXIT_FAILURE);
+        error_pr("ERROR ENCODE");
         break;
     }
     case INCORRECT_NUMBER_FORMAT:
     {
-        mt_setfgcolor(red);
-        printf("INCORRECT NUMBER FORMAT");
-        mt_setfgcolor(reset);
-        printf("\n");
-        exit(EXIT_FAILURE);
+        error_pr("INCORRECT NUMBER FORMAT");
         break;
     }
     case TOO_FEW_COMMANDS:
     {
-        mt_setfgcolor(red);
-        printf("TOO FEW COMMANS");
-        mt_setfgcolor(reset);
-        printf("\n");
-        exit(EXIT_FAILURE);
+        error_pr("TOO FEW COMMANS");
         break;
     }
-    case DIGIT_TOO_BIG:{
-        mt_setfgcolor(red);
-        printf("DIGIT TOO BIG");
-        mt_setfgcolor(reset);
-        printf("\n");
-        exit(EXIT_FAILURE);
+    case DIGIT_TOO_BIG:
+    {
+        error_pr("DIGIT TOO BIG");
         break;
     }
     default:
@@ -209,6 +182,10 @@ int ComCPU(char *command)
     {
         return 0x58;
     }
+    else if (strcmp(command, "JNS") == 0)
+    {
+        return 0x55;
+    }
     else
         error_handler(COMMAND_NOT_FOUND);
 }
@@ -238,7 +215,9 @@ void EncodeLine(int adress_cell, int command, int operand)
             }
 
             RAM[adress_cell] = operand;
-        }else{
+        }
+        else
+        {
             error_handler(DIGIT_TOO_BIG);
         }
     }
@@ -301,13 +280,11 @@ void interpretation(char *asembler, char *object)
     }
     else
     {
-        mt_setfgcolor(green);
-        printf("ASSEMBLER FILE OPEN");
+        succes("ASSEMBLER FILE OPEN");
         fclose(obj_file);
-        mt_setfgcolor(reset);
-        printf("\n");
     }
     int number_str = 0;
+    
     while (fgets(str, sizeof(char) * 256, asem_file))
     {
 
@@ -361,11 +338,7 @@ int main(int argc, char *argv[])
         obj_file = fopen(argv[1], "w");
         if (obj_file == NULL)
         {
-            mt_setfgcolor(red);
-            printf("COULD NOT OPEN OR CREATE FILE");
-            mt_setfgcolor(reset);
-            printf("\n");
-            exit(EXIT_FAILURE);
+            error_pr("COULD NOT OPEN OR CREATE FILE");
         }
         fwrite(RAM, 1, 100 * sizeof(int), obj_file);
         fclose(obj_file);

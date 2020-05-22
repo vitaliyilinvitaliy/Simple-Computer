@@ -348,6 +348,11 @@ int is_digit(char *dig)
     return 0;
 }
 
+
+int set_command(char *command_asm,struct basic_line *basic_line){
+
+}
+
 int add_asm_line(char command[], char parameters[], struct basic_line *basic_line, const int number, const size_t n)
 {
     int adr = -1;
@@ -480,6 +485,7 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
 
     case 0x0018:
         /* LET */
+        
         break;
     case 0x0019:
         /* REM */

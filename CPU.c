@@ -246,11 +246,18 @@ int CU(void)
             sc_instrcSet(operand - 1);
         break;
     }
+    case 0x55:{
+        sc_accGet(&value);
+        if (value > 0x0000)
+            sc_instrcSet(operand - 1);
+        break;
+    }
     case 0x43:
     { //HALT
         sc_regSet(IGNORING_TACT_PULSES, 1);
         break;
     }
+    
     default:
     {
         sc_regSet(CODE_ERROR, 1);
