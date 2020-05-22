@@ -6,8 +6,6 @@ int perem[26] = {0};
 int perem_adress = 99;
 int RAM_adress = 0;
 
-int zero = 0;
-
 void error_print(char text[])
 {
     mt_setfgcolor(red);
@@ -95,6 +93,10 @@ void error_handler(int error)
     case LINE_NOT_FOUND:
     {
         error_print("LINE NOT FOUND\n");
+        break;
+    }
+    case TOO_LONG_VARIABLE:{
+        error_print("TOO LONG VARIABLE\n");
         break;
     }
     }
@@ -347,7 +349,7 @@ int *add_perem(char Litter, bool digit)
     {
         if (digit)
         {
-            
+
             RAM[perem_adress] = perem_adress;
             int copy = perem_adress;
             perem_adress--;
@@ -378,25 +380,28 @@ int add_command(char command_asm[], int *operand, struct basic_line *basic_l, in
     RAM_adress++;
 }
 
-int add_asm_line(char command[], char parameters[], struct basic_line *basic_line, const int number, const size_t n)
+
+
+
+int add_asm_line(char command[], char parameters[], struct basic_line *basic_line, const int number, const size_t n,bool fl_b)
 {
-    int adr = -1;
     int code_com = check_command(command);
     char A[20], Sign[20], B[20];
     int *adress_d;
-
+    int adr = 0;
+    char com_if[256]={0},param_if[256]={0};
     switch (code_com)
     {
     case 0x0014:
     {
         /* INPUT */
-        add_command("READ", add_perem(parameters[0], false), &basic_line[number], RAM_adress, 0, true);
+        add_command("READ", add_perem(parameters[0], false), &basic_line[number], RAM_adress, 0, fl_b);
         break;
     }
     case 0x0015:
     {
         /* PRINT */
-        add_command("WRITE", add_perem(parameters[0], false), &basic_line[number], RAM_adress, 0, true);
+        add_command("WRITE", add_perem(parameters[0], false), &basic_line[number], RAM_adress, 0, fl_b);
         break;
     }
     case 0x0016:
@@ -408,7 +413,7 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
         {
             if (basic_line[j].number_line == adr)
             {
-                add_command("JUMP", &basic_line[j].operand, &basic_line[number], RAM_adress, 0, true);
+                add_command("JUMP", &basic_line[j].operand, &basic_line[number], RAM_adress, 0, fl_b);
                 flag = true;
                 break;
             }
@@ -422,74 +427,59 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
     case 0x0017:
     {
         /* IF */
-
         sscanf(parameters, "%s %s %s", A, Sign, B);
 
         if (is_digit(A) == 0)
         {
             adress_d = add_perem(' ', true);
-            add_command("=", NULL, &basic_line[number], *adress_d, atoi(A), true);
+            add_command("=", NULL, &basic_line[number], *adress_d, atoi(A), fl_b);
             add_command("LOAD", adress_d, &basic_line[number], RAM_adress, 0, false);
-            /*strcpy(asm_code[RAM_adress].command, "=");
-            asm_code[RAM_adress].number_cell = 98;
-            asm_code[RAM_adress].value = atoi(A);
-            RAM_adress++;
-            asm_code[RAM_adress].operand = &adr_if_A;*/
         }
         else
         {
             if (strlen(A) == 1)
             {
                 adress_d = add_perem(A[0], false);
-                printf("adr = %d\n",*adress_d);   
+                printf("adr = %d\n", *adress_d);
                 add_command("LOAD", adress_d, &basic_line[number], RAM_adress, 0, false);
-                /*adr = set_adress(A[0]);
-                asm_code[RAM_adress].operand = &perem[adr];*/
             }
             else
             {
-                exit(1);
+                printf("%s\n",A);
+                error_handler(TOO_LONG_VARIABLE);
             }
         }
-        /* strcpy(asm_code[RAM_adress].command, "LOAD");
-        asm_code[RAM_adress].number_cell = RAM_adress;
-        RAM_adress++;*/
         if (is_digit(B) == 0)
         {
             adress_d = add_perem(' ', true);
-            add_command("=", NULL, &basic_line[number], *adress_d, atoi(B), true);
+            add_command("=", NULL, &basic_line[number], *adress_d, atoi(B), false);
             add_command("SUB", adress_d, &basic_line[number], RAM_adress, 0, false);
-           /* strcpy(asm_code[RAM_adress].command, "=");
-            asm_code[RAM_adress].number_cell = 99;
-            asm_code[RAM_adress].value = atoi(B);
-            RAM_adress++;
-            asm_code[RAM_adress].operand = &adr_if_B;*/
         }
         else
         {
             if (strlen(B) == 1)
             {
                 adress_d = add_perem(B[0], false);
-                printf("adr = %d\n",*adress_d);   
+                printf("adr = %d\n", *adress_d);
                 add_command("SUB", adress_d, &basic_line[number], RAM_adress, 0, false);
-                /*adr = set_adress(B[0]);
-                asm_code[RAM_adress].operand = &perem[adr];*/
             }
             else
             {
-                exit(1);
+                printf("%s\n",B);
+                error_handler(TOO_LONG_VARIABLE);
             }
         }
-       /* strcpy(asm_code[RAM_adress].command, "SUB");
-        asm_code[RAM_adress].number_cell = RAM_adress;
-        RAM_adress++;*/
+        
+        if_pars(com_if,param_if,parameters);
+        int number_com = check_command(com_if);
+        add_asm_line(com_if,param_if,basic_line,number,n,false);
         
         break;
     }
 
     case 0x0018:
         /* LET */
-
+           
         break;
     case 0x0019:
         /* REM */
@@ -497,7 +487,7 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
         break;
     case 0x001A:
         /* END */
-        add_command("HALT", &zero, &basic_line[number], RAM_adress, 0, true);
+        add_command("HALT", NULL, &basic_line[number], RAM_adress, 0, fl_b);
         break;
 
     default:
@@ -510,7 +500,7 @@ void parser(struct basic_line *basic_line, size_t n)
 {
     for (int i = 0; i < n; i++)
     {
-        add_asm_line(basic_line[i].command, basic_line[i].parameters, basic_line, i, n);
+        add_asm_line(basic_line[i].command, basic_line[i].parameters, basic_line, i, n,true);
     }
 }
 
@@ -569,7 +559,7 @@ int main(int argc, char *argv[])
 {
     check_name_file(argc, argv);
     dragging_out_line(argv[1], argv[2]);
-    for (int i = 0; i < 10; i++)
+    for (int i = 0; i < 15; i++)
     {
         printf("%d %s ", asm_code[i].number_cell, asm_code[i].command);
         if (asm_code[i].operand != NULL)
@@ -642,4 +632,13 @@ int main(int argc, char *argv[])
 50 IF C < 0 GOTO 20
 60 PRINT C
 70 END
+
+
+A < B
+A-B<0
+A>B
+A > B
+A-B>0
+A = B
+A-B=0 
 */

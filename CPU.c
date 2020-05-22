@@ -247,6 +247,7 @@ int CU(void)
         break;
     }
     case 0x55:{
+        //JNS
         sc_accGet(&value);
         if (value > 0x0000)
             sc_instrcSet(operand - 1);

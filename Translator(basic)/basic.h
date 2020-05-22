@@ -4,6 +4,7 @@
 #include <string.h>
 #include "myTerm.h"
 #include <stdbool.h>
+#include "parse_line.h"
 
 #define TOO_FEW_ARGUMENTS 0
 #define INVALID_SIZE_OF_ARGUMENTS 1
@@ -19,6 +20,7 @@
 #define COMMAND_NOT_FOUND 11
 #define MEMORY_OVERLOAD 12
 #define LINE_NOT_FOUND 13
+#define TOO_LONG_VARIABLE 14
 
 
 #define INPUT 0x0014
