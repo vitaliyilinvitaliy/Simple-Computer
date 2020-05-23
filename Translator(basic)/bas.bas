@@ -1,7 +1,8 @@
 10 REM  Это комментарий
 20 INPUT A
 30 INPUT B
-35 IF A < C IF A < C IF A < C PRINT Z  
+32 LET C = A + B - 3
+35 IF A = B IF A < B IF A > B PRINT B  
 40 GOTO 60
 60 PRINT C
 70 END

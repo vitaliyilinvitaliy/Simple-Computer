@@ -95,7 +95,8 @@ void error_handler(int error)
         error_print("LINE NOT FOUND\n");
         break;
     }
-    case TOO_LONG_VARIABLE:{
+    case TOO_LONG_VARIABLE:
+    {
         error_print("TOO LONG VARIABLE\n");
         break;
     }
@@ -380,16 +381,13 @@ int add_command(char command_asm[], int *operand, struct basic_line *basic_l, in
     RAM_adress++;
 }
 
-
-
-
-int add_asm_line(char command[], char parameters[], struct basic_line *basic_line, const int number, const size_t n,bool fl_b)
+int add_asm_line(char command[], char parameters[], struct basic_line *basic_line, const int number, const size_t n, bool fl_b)
 {
     int code_com = check_command(command);
     char A[20], Sign[20], B[20];
     int *adress_d;
     int adr = 0;
-    char com_if[256]={0},param_if[256]={0};
+    char com_if[256] = {0}, param_if[256] = {0}, let_line[256] = {0};
     switch (code_com)
     {
     case 0x0014:
@@ -440,12 +438,10 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
             if (strlen(A) == 1)
             {
                 adress_d = add_perem(A[0], false);
-                printf("adr = %d\n", *adress_d);
                 add_command("LOAD", adress_d, &basic_line[number], RAM_adress, 0, false);
             }
             else
             {
-                printf("%s\n",A);
                 error_handler(TOO_LONG_VARIABLE);
             }
         }
@@ -460,26 +456,60 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
             if (strlen(B) == 1)
             {
                 adress_d = add_perem(B[0], false);
-                printf("adr = %d\n", *adress_d);
                 add_command("SUB", adress_d, &basic_line[number], RAM_adress, 0, false);
             }
             else
             {
-                printf("%s\n",B);
                 error_handler(TOO_LONG_VARIABLE);
             }
         }
-        
-        if_pars(com_if,param_if,parameters);
+
+        if (strlen(Sign) > 1)
+        {
+            exit(1);
+        }
+        switch (Sign[0])
+        {
+        case '>':
+        {
+            add_command("JNEG", &basic_line[number + 1].operand, basic_line, RAM_adress, 0, false);
+            add_command("JZ", &basic_line[number + 1].operand, basic_line, RAM_adress, 0, false);
+            break;
+        }
+        case '<':
+        {
+            add_command("JNS", &basic_line[number + 1].operand, basic_line, RAM_adress, 0, false);
+            add_command("JZ", &basic_line[number + 1].operand, basic_line, RAM_adress, 0, false);
+            break;
+        }
+        case '=':
+        {
+            add_command("JNEG", &basic_line[number + 1].operand, basic_line, RAM_adress, 0, false);
+            add_command("JNS", &basic_line[number + 1].operand, basic_line, RAM_adress, 0, false);
+            break;
+        }
+        default:
+            exit(1);
+            break;
+        }
+        if_pars(com_if, param_if, parameters);
         int number_com = check_command(com_if);
-        add_asm_line(com_if,param_if,basic_line,number,n,false);
-        
+        add_asm_line(com_if, param_if, basic_line, number, n, false);
+
         break;
     }
 
     case 0x0018:
         /* LET */
-           
+        //printf("%s %s\n",command,parameters);
+        sscanf(parameters, "%s %s", A, B);
+        let_merge(parameters, let_line);
+        printf("%s\n", let_line);
+        if (calcpars(let_line) == 1)
+        {
+            exit(1);
+        }
+
         break;
     case 0x0019:
         /* REM */
@@ -500,7 +530,7 @@ void parser(struct basic_line *basic_line, size_t n)
 {
     for (int i = 0; i < n; i++)
     {
-        add_asm_line(basic_line[i].command, basic_line[i].parameters, basic_line, i, n,true);
+        add_asm_line(basic_line[i].command, basic_line[i].parameters, basic_line, i, n, true);
     }
 }
 
@@ -510,7 +540,7 @@ void dragging_out_line(char *name_file_asm, char *name_file_bas)
 
     char str[256];
     int amount = amount_line_in_file(name_file_bas);
-    printf("%d\n", amount);
+    printf("Lines : %d\n\n", amount);
     struct basic_line *basic_code = (struct basic_line *)calloc(amount + 1, sizeof(struct basic_line));
     if (basic_code == NULL)
     {
@@ -559,7 +589,7 @@ int main(int argc, char *argv[])
 {
     check_name_file(argc, argv);
     dragging_out_line(argv[1], argv[2]);
-    for (int i = 0; i < 15; i++)
+    for (int i = 0; i < 20; i++)
     {
         printf("%d %s ", asm_code[i].number_cell, asm_code[i].command);
         if (asm_code[i].operand != NULL)
@@ -605,11 +635,8 @@ int main(int argc, char *argv[])
     30 INPUT B              |30|INPUT|B|01|
     40 LET C = A – B        |40|LET|C = A – (B + D * 2)/F|02|
                                        
-                                        A B D 2 * + F / -
-                                        D2*
-                                        LOAD D
-                                        MUL 2
-                                        STORE 99
+                                        ABD2*+F/-
+                                        ABD2
                                         
     50 IF C < 0 GOTO 20
     60 PRINT C
