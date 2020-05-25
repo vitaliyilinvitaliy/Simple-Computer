@@ -5,6 +5,7 @@ int RAM[100] = {0};
 int perem[26] = {0};
 int perem_adress = 99;
 int RAM_adress = 0;
+int *buf_obm = NULL;
 
 void error_print(char text[])
 {
@@ -100,42 +101,6 @@ void error_handler(int error)
         error_print("TOO LONG VARIABLE\n");
         break;
     }
-    }
-}
-
-void push(int data, struct stack **head_stack)
-{
-    struct stack *Node = (struct stack *)malloc(sizeof(struct stack));
-    if (Node == NULL)
-    {
-        error_handler(MEMORY_ERROR);
-    }
-    Node->prev = *head_stack;
-    Node->number = data;
-    *head_stack = Node;
-}
-
-int pop(struct stack **head_stack)
-{
-    struct stack *Node = NULL;
-    int data = 0;
-    if (*head_stack != NULL)
-    {
-        Node = *head_stack;
-        data = (*head_stack)->number;
-        (*head_stack) = (*head_stack)->prev;
-        free(Node);
-        return data;
-    }
-    return -1;
-}
-
-void print_stack(const struct stack *head)
-{
-    while (head)
-    {
-        printf("%d ", head->number);
-        head = head->prev;
     }
 }
 
@@ -381,13 +346,62 @@ int add_command(char command_asm[], int *operand, struct basic_line *basic_l, in
     RAM_adress++;
 }
 
+int check_sing(char sing)
+{
+    if (sing == '*' || sing == '/' || sing == '+' || sing == '-')
+    {
+        return 1;
+    }
+    else
+    {
+        return 0;
+    }
+}
+
+int lever_sign(int *operand, char sign, struct basic_line *basic_line, int number, bool flag_obm)
+{
+    switch (sign)
+    {
+    case '+':
+        add_command("ADD", operand, &basic_line[number], RAM_adress, 0, false);
+        break;
+    case '-':
+        add_command("SUB", operand, &basic_line[number], RAM_adress, 0, false);
+        if (flag_obm)
+        {
+            
+        }
+        break;
+    case '/':
+        add_command("DIVIDE", operand, &basic_line[number], RAM_adress, 0, false);
+        if (flag_obm)
+        {
+
+        }
+        break;
+    case '*':
+        add_command("MUL", operand, &basic_line[number], RAM_adress, 0, false);
+        break;
+    default:
+        break;
+    }
+}
+
+void overload_mem(){
+    if(RAM_adress+(100-perem_adress)>100){
+        error_handler(MEMORY_ERROR);
+    }
+}
+
 int add_asm_line(char command[], char parameters[], struct basic_line *basic_line, const int number, const size_t n, bool fl_b)
 {
     int code_com = check_command(command);
     char A[20], Sign[20], B[20];
     int *adress_d;
     int adr = 0;
-    char com_if[256] = {0}, param_if[256] = {0}, let_line[256] = {0};
+    char com_if[256] = {0}, param_if[256] = {0}, let_line[256] = {0}, get_st[256], p1[256], p2[256], sign;
+    struct stack *let = NULL, *calculate = NULL;
+
     switch (code_com)
     {
     case 0x0014:
@@ -504,10 +518,97 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
         //printf("%s %s\n",command,parameters);
         sscanf(parameters, "%s %s", A, B);
         let_merge(parameters, let_line);
-        printf("%s\n", let_line);
+        buf_obm = add_perem(parameters[0], false);
+        printf("%d %s\n", *buf_obm, let_line);
         if (calcpars(let_line) == 1)
         {
             exit(1);
+        }
+        conversion_rpn(parameters, &let);
+        print_stack(let);
+        printf("\n");
+        bool flag_acc = false;
+        int *store_adr1 = NULL,*store_adr2 = NULL,*store_adr = NULL,*adr_acc = NULL;
+        while (!pop_del(&let, get_st,store_adr))
+        {
+            if (!check_sing(get_st[0]))
+            {
+                push(get_st, &calculate,NULL);
+            }
+            else
+            {
+                sign = get_st[0];
+                pop_del(&calculate, p1,store_adr1);
+                pop_del(&calculate, p2,store_adr2);
+
+                int *adr_p1 = NULL, *adr_p2 = NULL;
+
+                if ('A' <= p1[0] && p1[0] <= 'Z')
+                {
+                    adr_p1 = add_perem(p1[0], false);
+                }
+                else
+                {
+                    if ('0' <= p1[0] && p1[0] <= '9')
+                    {
+                        adr_p1 = add_perem(' ', true);
+                        add_command("=", adr_p1, &basic_line[number], RAM_adress,atoi(p1), false);
+
+                    }
+                    else
+                    {
+                        if(strcmp(p1,"ACC")==0&&store_adr1!=NULL){
+                            adr_p1 = store_adr1;
+                        }
+                    }
+                }
+                if ('A' <= p2[0] && p2[0] <= 'Z')
+                {
+                    adr_p2 = add_perem(p2[0], false);
+                }
+                else
+                {
+                    if ('0' <= p2[0] && p2[0] <= '9')
+                    {
+                        adr_p2 = add_perem(' ', true);
+                        add_command("=", adr_p2, &basic_line[number], RAM_adress,atoi(p2), false);
+                    }
+                    else
+                    {
+                        if(strcmp(p2,"ACC")==0&&store_adr2!=NULL){
+                            adr_p2 = store_adr2;
+                        }
+                    }
+                }
+                
+
+                if (strcmp(p1, "ACC") != 0 && strcmp(p2, "ACC") != 0)
+                {
+                    if (!flag_acc)
+                    {
+                        adr_acc = add_perem(' ',true);
+                        printf("\n1\n");
+                        flag_acc = true;
+                        add_command("LOAD", adr_p2, &basic_line[number], RAM_adress, 0, false);
+                        lever_sign(adr_p1, sign, basic_line, number, false);
+                        push("ACC",&calculate,adr_acc);
+                    }
+                    else
+                    { 
+                        printf("\n2\n");
+                        add_command("STORE", adr_acc, &basic_line[number], RAM_adress, 0, false);
+                        add_command("LOAD", adr_p2, &basic_line[number], RAM_adress, 0, false);
+                        flag_acc = false;
+                    }
+                }else{
+                    if(strcmp(p1, "ACC") == 0){
+                        lever_sign(adr_p1, sign, basic_line, number, true);
+                    }else{
+                        lever_sign(adr_p1, sign, basic_line, number, false);
+                    }
+                }
+                
+            }
         }
 
         break;
@@ -524,6 +625,7 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
         error_handler(COMMAND_NOT_FOUND);
         break;
     }
+    overload_mem();
 }
 
 void parser(struct basic_line *basic_line, size_t n)
@@ -602,70 +704,29 @@ int main(int argc, char *argv[])
         }
         printf("\n");
     }
+    /*struct stack *m=NULL;
+    push("A",&m);
+    push("+",&m);
+    push("B",&m);
+    push("/",&m);
+    push("1234",&m);
+    print_stack(m);
+    printf("\n");
+    del(&m);
+    print_stack(m);
+    printf("\n");*/
 }
 
 /*
-    Проверки:
-    1. на правильность аргументов командной строки
-    2. на существования файла *.bas
-    3. на возрастание номеров строк
-    4. на наличие команды END
-    5. верхнего регистра букв команд
-    6. переменной на имя состоящее из одного символа (26 символов)
-    7. правильности команды 
-    8. на существование строки при GOTO
-    9. на существование переменной при LET & PRINT
-    10. синтаксис после команд
-    11. правильность записи знаков < >  = * / + - (синтаксис)
-    
-    План работы:
-    1. Стек
-    2. Обратная польская запись 
-    3. Получение строк из файла
-    4. Парсинг строки
-    5. Перевод в команды ассемблера
-
-    |NUMBER|COMMAND|...|...|
-    |40|LET|C = A – B|05|
-    40 LET C = A – B
-
-
-    10 REM  Это комментарий |10|REM|Это комментарий| |
-    20 INPUT A              |20|INPUT|A|00|
-    30 INPUT B              |30|INPUT|B|01|
-    40 LET C = A – B        |40|LET|C = A – (B + D * 2)/F|02|
-                                       
-                                        ABD2*+F/-
-                                        ABD2
-                                        
-    50 IF C < 0 GOTO 20
-    60 PRINT C
-    70 END
-    
-    6
+    A B C * + B A C + / 33 45 - / -
+    store ACC 
     
 
-    [10] 9
-    [11] 12
-    [12] 1
-    [13] 3
-    [14] 3
-    [15] 5
-
-    10 REM  Это комментарий
-20 INPUT A
-30 INPUT B
-40 LET C = A – B
-50 IF C < 0 GOTO 20
-60 PRINT C
-70 END
 
 
-A < B
-A-B<0
-A>B
-A > B
-A-B>0
-A = B
-A-B=0 
+    store 97
+    store 95
+    load B
+    divide 95
+    
 */

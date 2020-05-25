@@ -5,6 +5,7 @@
 #include "myTerm.h"
 #include <stdbool.h>
 #include "parse_line.h"
+#include "RPN.h"
 
 #define TOO_FEW_ARGUMENTS 0
 #define INVALID_SIZE_OF_ARGUMENTS 1
@@ -34,10 +35,6 @@
 
 
 
-struct stack{
-    int number;
-    struct stack *prev;
-};
 
 struct basic_line
 {
