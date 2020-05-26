@@ -3,7 +3,8 @@
 struct asm_line asm_code[100];
 int RAM[100] = {0};
 int perem[26] = {0};
-int perem_adress = 99;
+int perem_adress = 98;
+
 int RAM_adress = 0;
 int *buf_obm = NULL;
 
@@ -366,18 +367,30 @@ int lever_sign(int *operand, char sign, struct basic_line *basic_line, int numbe
         add_command("ADD", operand, &basic_line[number], RAM_adress, 0, false);
         break;
     case '-':
-        add_command("SUB", operand, &basic_line[number], RAM_adress, 0, false);
         if (flag_obm)
         {
-            
+            add_command("STORE", NULL, &basic_line[number], RAM_adress, 99, false);
+            add_command("LOAD", operand, &basic_line[number], RAM_adress, 0, false);
+            add_command("SUB", NULL, &basic_line[number], RAM_adress, 99, false);
         }
+        else
+        {
+            add_command("SUB", operand, &basic_line[number], RAM_adress, 0, false);
+        }
+
         break;
     case '/':
-        add_command("DIVIDE", operand, &basic_line[number], RAM_adress, 0, false);
         if (flag_obm)
         {
-
+            add_command("STORE", NULL, &basic_line[number], RAM_adress, 99, false);
+            add_command("LOAD", operand, &basic_line[number], RAM_adress, 0, false);
+            add_command("DIVIDE", NULL, &basic_line[number], RAM_adress, 99, false);
         }
+        else
+        {
+            add_command("DIVIDE", operand, &basic_line[number], RAM_adress, 0, false);
+        }
+
         break;
     case '*':
         add_command("MUL", operand, &basic_line[number], RAM_adress, 0, false);
@@ -387,8 +400,10 @@ int lever_sign(int *operand, char sign, struct basic_line *basic_line, int numbe
     }
 }
 
-void overload_mem(){
-    if(RAM_adress+(100-perem_adress)>100){
+void overload_mem()
+{
+    if (RAM_adress + (100 - perem_adress) > 100)
+    {
         error_handler(MEMORY_ERROR);
     }
 }
@@ -399,7 +414,7 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
     char A[20], Sign[20], B[20];
     int *adress_d;
     int adr = 0;
-    char com_if[256] = {0}, param_if[256] = {0}, let_line[256] = {0}, get_st[256], p1[256], p2[256], sign;
+    char com_if[256] = {0}, param_if[256] = {0}, let_line[256] = {0}, get_st[256]={0}, p1[256]={0}, p2[256]={0}, sign;
     struct stack *let = NULL, *calculate = NULL;
 
     switch (code_com)
@@ -528,22 +543,29 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
         print_stack(let);
         printf("\n");
         bool flag_acc = false;
-        int *store_adr1 = NULL,*store_adr2 = NULL,*store_adr = NULL,*adr_acc = NULL;
-        while (!pop_del(&let, get_st,store_adr))
+        int *store_adr1 = NULL, *store_adr2 = NULL, *store_adr = NULL, *adr_acc = NULL;
+        while (!pop_del(&let, get_st,&store_adr))
         {
-            if (!check_sing(get_st[0]))
+           if (!check_sing(get_st[0]))
             {
-                push(get_st, &calculate,NULL);
+                push(get_st, &calculate, NULL);
+                
             }
             else
             {
                 sign = get_st[0];
-                pop_del(&calculate, p1,store_adr1);
-                pop_del(&calculate, p2,store_adr2);
+            
+                
+                /*print_stack(calculate);
+                printf("\n");*/
+                pop_del(&calculate, p1, &store_adr1);
+                pop_del(&calculate, p2, &store_adr2);
+                
+                
+                
+                 int *adr_p1 = NULL, *adr_p2 = NULL;
 
-                int *adr_p1 = NULL, *adr_p2 = NULL;
-
-                if ('A' <= p1[0] && p1[0] <= 'Z')
+               if ('A' <= p1[0] && p1[0] <= 'Z')
                 {
                     adr_p1 = add_perem(p1[0], false);
                 }
@@ -552,12 +574,12 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
                     if ('0' <= p1[0] && p1[0] <= '9')
                     {
                         adr_p1 = add_perem(' ', true);
-                        add_command("=", adr_p1, &basic_line[number], RAM_adress,atoi(p1), false);
-
+                        add_command("=", NULL, &basic_line[number], *adr_p1, atoi(p1), false);
                     }
                     else
                     {
-                        if(strcmp(p1,"ACC")==0&&store_adr1!=NULL){
+                        if (strcmp(p1, "acc") == 0 && store_adr1 != NULL)
+                        {
                             adr_p1 = store_adr1;
                         }
                     }
@@ -571,46 +593,58 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
                     if ('0' <= p2[0] && p2[0] <= '9')
                     {
                         adr_p2 = add_perem(' ', true);
-                        add_command("=", adr_p2, &basic_line[number], RAM_adress,atoi(p2), false);
+                        add_command("=", NULL, &basic_line[number], *adr_p2, atoi(p2), false);
                     }
                     else
                     {
-                        if(strcmp(p2,"ACC")==0&&store_adr2!=NULL){
+                        if (strcmp(p2, "acc") == 0 && store_adr2 != NULL)
+                        {      
                             adr_p2 = store_adr2;
                         }
                     }
                 }
+                if('0' <= p2[0] && p2[0] <= '9'&&'0' <= p1[0] && p1[0] <= '9'){
+                    add_command("STORE", adr_acc, &basic_line[number], RAM_adress, 0, false);
+                }
                 
-
-                if (strcmp(p1, "ACC") != 0 && strcmp(p2, "ACC") != 0)
+                if (strcmp(p1, "acc") != 0 && strcmp(p2, "acc") != 0)
                 {
                     if (!flag_acc)
                     {
-                        adr_acc = add_perem(' ',true);
-                        printf("\n1\n");
+                        adr_acc = add_perem(' ', true);
                         flag_acc = true;
                         add_command("LOAD", adr_p2, &basic_line[number], RAM_adress, 0, false);
                         lever_sign(adr_p1, sign, basic_line, number, false);
-                        push("ACC",&calculate,adr_acc);
+                        push("acc", &calculate, adr_acc);
                     }
                     else
-                    { 
-                        printf("\n2\n");
+                    {
                         add_command("STORE", adr_acc, &basic_line[number], RAM_adress, 0, false);
                         add_command("LOAD", adr_p2, &basic_line[number], RAM_adress, 0, false);
+                        lever_sign(adr_p1, sign, basic_line, number, false);
                         flag_acc = false;
                     }
-                }else{
-                    if(strcmp(p1, "ACC") == 0){
-                        lever_sign(adr_p1, sign, basic_line, number, true);
-                    }else{
+                       
+                }
+                else
+                {
+                    if (strcmp(p2, "acc") == 0)
+                    {
+                        lever_sign(adr_p2, sign, basic_line, number, true);
+                    }
+                    else
+                    {
                         lever_sign(adr_p1, sign, basic_line, number, false);
                     }
+                    
                 }
-                
+                if(check_empty_stack(calculate)){
+                    push("acc", &calculate, adr_acc);
+                }
             }
+            
         }
-
+        add_command("STORE", buf_obm, &basic_line[number], RAM_adress, 0, false);
         break;
     case 0x0019:
         /* REM */
@@ -691,7 +725,7 @@ int main(int argc, char *argv[])
 {
     check_name_file(argc, argv);
     dragging_out_line(argv[1], argv[2]);
-    for (int i = 0; i < 20; i++)
+    for (int i = 0; i < 26; i++)
     {
         printf("%d %s ", asm_code[i].number_cell, asm_code[i].command);
         if (asm_code[i].operand != NULL)
@@ -704,29 +738,54 @@ int main(int argc, char *argv[])
         }
         printf("\n");
     }
-    /*struct stack *m=NULL;
-    push("A",&m);
-    push("+",&m);
-    push("B",&m);
-    push("/",&m);
-    push("1234",&m);
+    for(int i=0;i<26;i++){
+        printf("%d; ",perem[i]);
+    }
+    printf("\n");
+   /* struct stack *m=NULL;
+    int *store=NULL;
+    char let[256]={0};
+    int op[]={1,2,3,4,5};
+    push("A",&m,&op[0]);
+    push("+",&m,&op[1]);
+    push("B",&m,&op[2]);
+    push("/",&m,&op[3]);
+    push("1234",&m,&op[4]);
     print_stack(m);
     printf("\n");
-    del(&m);
-    print_stack(m);
-    printf("\n");*/
+    pop_del(&m,let,&store);
+    printf("store = %d\n",*store);*/
 }
 
 /*
-    A B C * + B A C + / 33 45 - / -
-    store ACC 
-    
+96    A B C * + B A C + / 33 45 - / - 
+
+ 
+94 B ACC
+
+
+2 LOAD 97
+3 MUL 95
+4 ADD 98
+5 STORE 94
+6 LOAD 98
+7 ADD 95
+8 DIVIDE 97
+93 = 44
+92 = 33
+11 STORE 94
+12 LOAD 92
+13 SUB 93
+14 STORE 99
+15 LOAD 94
+16 DIVIDE 99
+17 STORE 99
+18 LOAD 94
+19 SUB 99
+
+
+98; 97; 95; 0; 0; 0; 0; 0; 0; 0; 96; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;  
 
 
 
-    store 97
-    store 95
-    load B
-    divide 95
-    
 */

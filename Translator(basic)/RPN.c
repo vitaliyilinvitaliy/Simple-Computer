@@ -65,7 +65,7 @@ int conversion_rpn(const char *fromcalculate, struct stack **let)
                     if (pr1 == pr2)
                     {
                         push(get_st, &Calculate,NULL);
-                        pop_del(&SingStack, get_st,store);
+                        pop_del(&SingStack, get_st,&store);
                     }
                     push(copy[i], &SingStack,NULL);
                 }
@@ -91,7 +91,7 @@ int conversion_rpn(const char *fromcalculate, struct stack **let)
                             {
                                 push(get_st, &Calculate,NULL);
                             }
-                            pop_del(&SingStack, get_st,store);
+                            pop_del(&SingStack, get_st,&store);
                         } while (get_st[0] != '(');
                     }
                 }
@@ -99,14 +99,14 @@ int conversion_rpn(const char *fromcalculate, struct stack **let)
         }
     }
     char get_st[256] = {0};
-    while (!pop_del(&SingStack, get_st,NULL))
+    while (!pop_del(&SingStack, get_st,&store))
     {
         push(get_st, &Calculate,NULL);
     }
     
     del(let);
    
-    while (!pop_del(&Calculate, get_st,NULL))
+    while (!pop_del(&Calculate, get_st,&store))
     {
         push(get_st,let,NULL);
     }
@@ -127,14 +127,14 @@ int push(char data[], struct stack **head_stack,int *operand)
     return 0;
 }
 
-int pop_del(struct stack **head_stack, char ret[],int *store)
+int pop_del(struct stack **head_stack, char ret[],int **store)
 {
     struct stack *Node = NULL;
     if (*head_stack != NULL)
     {
         Node = *head_stack;
         strcpy(ret, (*head_stack)->Litter);
-        store= (*head_stack)->store_acc;
+        *store= (*head_stack)->store_acc;
         (*head_stack) = (*head_stack)->prev;
         free(Node);
         return 0;
@@ -183,3 +183,8 @@ int del(struct stack **head_stack)
     return 1;
 }
 
+int check_empty_stack(struct stack *calculate){
+    if(calculate == NULL){
+        return 1;
+    }else return 0;
+}
