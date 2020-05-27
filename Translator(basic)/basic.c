@@ -556,13 +556,22 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
                 sign = get_st[0];
             
                 
-                /*print_stack(calculate);
-                printf("\n");*/
+                print_stack(calculate);
+                printf("\n");
+                
                 pop_del(&calculate, p1, &store_adr1);
                 pop_del(&calculate, p2, &store_adr2);
-                
-                
-                
+                printf("%s %s %c\n",p1,p2,get_st[0]);
+                if(store_adr1!=NULL){
+                    printf("%d ",*store_adr1);
+                }
+                if(store_adr2!=NULL){
+                    printf("%d",*store_adr1);
+                }
+                printf("\n");
+                if(store_adr2!=NULL){
+                    
+                }
                  int *adr_p1 = NULL, *adr_p2 = NULL;
 
                if ('A' <= p1[0] && p1[0] <= 'Z')
@@ -604,9 +613,14 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
                     }
                 }
                 if('0' <= p2[0] && p2[0] <= '9'&&'0' <= p1[0] && p1[0] <= '9'){
-                    add_command("STORE", adr_acc, &basic_line[number], RAM_adress, 0, false);
+                    if(adr_acc!=NULL){
+                        add_command("STORE", adr_acc, &basic_line[number], RAM_adress, 0, false);
+                        
+                    }
+                    
                 }
                 
+
                 if (strcmp(p1, "acc") != 0 && strcmp(p2, "acc") != 0)
                 {
                     if (!flag_acc)
@@ -621,6 +635,8 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
                     {
                         add_command("STORE", adr_acc, &basic_line[number], RAM_adress, 0, false);
                         add_command("LOAD", adr_p2, &basic_line[number], RAM_adress, 0, false);
+                        adr_acc = add_perem(' ', true);
+                        push("acc", &calculate, adr_acc);
                         lever_sign(adr_p1, sign, basic_line, number, false);
                         flag_acc = false;
                     }
@@ -628,19 +644,24 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
                 }
                 else
                 {
-                    if (strcmp(p2, "acc") == 0)
+                    
+                    
+                    
+                    if (strcmp(p1, "acc") == 0)
                     {
                         lever_sign(adr_p2, sign, basic_line, number, true);
+                        push("acc", &calculate, store_adr1);
                     }
                     else
                     {
                         lever_sign(adr_p1, sign, basic_line, number, false);
+                        push("acc", &calculate, store_adr1);
                     }
                     
                 }
-                if(check_empty_stack(calculate)){
+                /*if(check_empty_stack(calculate)){
                     push("acc", &calculate, adr_acc);
-                }
+                }*/
             }
             
         }
@@ -761,27 +782,35 @@ int main(int argc, char *argv[])
 96    A B C * + B A C + / 33 45 - / - 
 
  
-94 B ACC
+A ACC
 
+
+A ACC 
 
 2 LOAD 97
 3 MUL 95
-4 ADD 98
+4 ADD 94
 5 STORE 94
 6 LOAD 98
 7 ADD 95
-8 DIVIDE 97
+8 STORE 99
+9 LOAD 94
+10 DIVIDE 99
 93 = 44
 92 = 33
-11 STORE 94
-12 LOAD 92
-13 SUB 93
-14 STORE 99
-15 LOAD 94
-16 DIVIDE 99
-17 STORE 99
-18 LOAD 94
-19 SUB 99
+13 LOAD 92
+14 SUB 93
+15 STORE 99
+16 LOAD 94
+17 DIVIDE 99
+18 STORE 99
+19 LOAD 94
+20 SUB 99
+21 STORE 96
+22 JUMP 23
+23 WRITE 95
+24 HALT 0
+
 
 
 98; 97; 95; 0; 0; 0; 0; 0; 0; 0; 96; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0;  
