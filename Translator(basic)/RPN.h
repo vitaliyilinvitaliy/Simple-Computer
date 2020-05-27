@@ -24,3 +24,4 @@ void print_stack(const struct stack *head);
 int del(struct stack **head_stack);
 void fill_operand(struct stack **head_stack);
 int check_empty_stack(struct stack *calculate);
+int size_stack(struct stack *head_stack);

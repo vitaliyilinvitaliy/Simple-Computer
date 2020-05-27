@@ -52,4 +52,8 @@ struct asm_line
     int value;
 };
 
+struct equally{
+    int operand;
+    int value;
+};
 

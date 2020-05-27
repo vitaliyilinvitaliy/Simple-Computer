@@ -1,5 +1,5 @@
 10 INPUT A
-20 LET B = 1
+20 LET B = 1 
 30 IF A = 0 GOTO 70
 40 LET B = B * A
 50 LET A = A - 1 
