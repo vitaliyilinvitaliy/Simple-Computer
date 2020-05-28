@@ -285,7 +285,6 @@ int check_command(char *command)
     }
     else
     {
-        printf("%s\n",command);
         error_handler(COMMAND_NOT_FOUND);
     }
 }
@@ -565,7 +564,7 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
             exit(1);
             break;
         }
-        printf("if pars\n");
+        
         if_pars(com_if, param_if, parameters);
         int number_com = check_command(com_if);
         add_asm_line(com_if, param_if, basic_line, number, n, false);
@@ -613,9 +612,7 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
                 pop_del(&calculate, p1, &store_adr1);
                 pop_del(&calculate, p2, &store_adr2);
 
-                if (store_adr2 != NULL)
-                {
-                }
+                
                 int *adr_p1 = NULL, *adr_p2 = NULL;
 
                 if ('A' <= p1[0] && p1[0] <= 'Z')

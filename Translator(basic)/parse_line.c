@@ -15,7 +15,7 @@ int if_pars(char *com, char *par, char *a)
     }
   } while (if_uslovie != 3); //пока не считается три параметра условия
 
-  if (a[i] >= '0' && a[i] <= '9')
+  if (a[i] >= '0' && a[i] <= '9' || a[i] == '-')
   {
     while (a[i] != ' ' && a[i] != '\t')
     {
