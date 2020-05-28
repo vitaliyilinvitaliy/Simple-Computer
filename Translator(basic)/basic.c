@@ -9,6 +9,8 @@ int number_line = 0;
 int RAM_adress = 0;
 int *buf_obm = NULL;
 
+int end_programm = 0;
+
 void error_print(char text[])
 {
     mt_setfgcolor(red);
@@ -101,6 +103,11 @@ void error_handler(int error)
     case TOO_LONG_VARIABLE:
     {
         error_print("TOO LONG VARIABLE\n");
+        break;
+    }
+    case END_ERROR:
+    {
+        error_print("'END' SHOULD BE USED ONCE");
         break;
     }
     }
@@ -235,9 +242,6 @@ void check_syntax(struct basic_line *basic_code, size_t n)
     int prev_number = 0;
     for (size_t i = 0; i < n; i++)
     {
-        /* printf("%d %s %s\n", basic_code[i].number_line,
-               basic_code[i].command,
-               basic_code[i].parameters);*/
         if (i > 0)
         {
             if (basic_code[i].number_line <= basic_code[i - 1].number_line)
@@ -281,19 +285,26 @@ int check_command(char *command)
     }
     else
     {
+        printf("%s\n",command);
         error_handler(COMMAND_NOT_FOUND);
     }
 }
 
 int is_digit(char *dig)
 {
-    for (int i = 0; i < strlen(dig); i++)
+    int i = 0;
+    if (dig[0] == '-')
+    {
+        i++;
+    }
+    for (; i < strlen(dig); i++)
     {
         if (dig[i] < '0' || dig[i] > '9')
         {
             return -1;
         }
     }
+
     return 0;
 }
 
@@ -425,13 +436,39 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
     case 0x0014:
     {
         /* INPUT */
-        add_command("READ", add_perem(parameters[0], false), &basic_line[number], number_line, 0, fl_b);
+        if (parameters[0] >= 'A' && parameters[0] <= 'Z')
+        {
+            add_command("READ", add_perem(parameters[0], false), &basic_line[number], number_line, 0, fl_b);
+        }
+        else
+        {
+            error_handler(WRONG_REGISTER);
+        }
+
         break;
     }
     case 0x0015:
     {
         /* PRINT */
-        add_command("WRITE", add_perem(parameters[0], false), &basic_line[number], number_line, 0, fl_b);
+        if (parameters[0] >= 'A' && parameters[0] <= 'Z')
+        {
+            add_command("WRITE", add_perem(parameters[0], false), &basic_line[number], number_line, 0, fl_b);
+        }
+        else
+        {
+            if ((parameters[0] >= '0' && parameters[0] <= '9' ||
+                 (parameters[0] == '-' && parameters[1] >= '1' && parameters[1] <= '9')) &&
+                is_digit(parameters) == 0)
+            {
+                adress_d = add_perem(' ', true);
+                add_command("=", NULL, &basic_line[number], *adress_d, atoi(parameters), false);
+                add_command("WRITE", adress_d, &basic_line[number], number_line, 0, fl_b);
+            }
+            else
+            {
+                error_handler(WRONG_REGISTER);
+            }
+        }
         break;
     }
     case 0x0016:
@@ -528,6 +565,7 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
             exit(1);
             break;
         }
+        printf("if pars\n");
         if_pars(com_if, param_if, parameters);
         int number_com = check_command(com_if);
         add_asm_line(com_if, param_if, basic_line, number, n, false);
@@ -538,21 +576,17 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
 
     case 0x0018:
         /* LET */
-        //printf("%s %s\n",command,parameters);
 
         sscanf(parameters, "%s %s", A, B);
         let_merge(parameters, let_line);
         buf_obm = add_perem(parameters[0], false);
-        printf("%d %s\n", *buf_obm, let_line);
+
         if (calcpars(let_line) == 1)
         {
             exit(1);
         }
         conversion_rpn(parameters, &let);
-        print_stack(let);
         int size_st = size_stack(let);
-        printf("size st = %d\n", size_st);
-        printf("\n");
 
         int *store_adr1 = NULL, *store_adr2 = NULL, *store_adr = NULL, *adr_acc = NULL, begin_let = -1;
         bool flag_begin = false, flag_acc = false;
@@ -576,21 +610,9 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
             {
                 sign = get_st[0];
 
-                print_stack(calculate);
-                printf("\n");
-
                 pop_del(&calculate, p1, &store_adr1);
                 pop_del(&calculate, p2, &store_adr2);
-                printf("%s %s %c\n", p1, p2, get_st[0]);
-                if (store_adr1 != NULL)
-                {
-                    printf("%d ", *store_adr1);
-                }
-                if (store_adr2 != NULL)
-                {
-                    printf("%d", *store_adr1);
-                }
-                printf("\n");
+
                 if (store_adr2 != NULL)
                 {
                 }
@@ -682,9 +704,6 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
                         push("acc", &calculate, store_adr1);
                     }
                 }
-                /*if(check_empty_stack(calculate)){
-                    push("acc", &calculate, adr_acc);
-                }*/
             }
         }
         add_command("STORE", buf_obm, &basic_line[number], number_line, 0, false);
@@ -698,6 +717,15 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
     case 0x001A:
         /* END */
         add_command("HALT", NULL, &basic_line[number], number_line, 0, fl_b);
+        if (end_programm == 0)
+        {
+            end_programm++;
+        }
+        else
+        {
+            error_handler(END_ERROR);
+        }
+
         break;
 
     default:
@@ -741,6 +769,7 @@ void dragging_out_line(char *name_file_asm, char *name_file_bas)
         if (!empty_str(str))
         {
 
+            printf("%s", str);
             sscanf(str, "%d%s", &basic_code[index].number_line, basic_code[index].command);
             param = get_parameters(str);
 
@@ -809,23 +838,9 @@ int main(int argc, char *argv[])
 {
     check_name_file(argc, argv);
     dragging_out_line(argv[1], argv[2]);
-    for (int i = 0; i < 26; i++)
-    {
-        printf("%d %s ", asm_code[i].number_cell, asm_code[i].command);
-        if (asm_code[i].operand != NULL)
-        {
-            printf("%d", *asm_code[i].operand);
-        }
-        else
-        {
-            printf("%d", asm_code[i].value);
-        }
-        printf("\n");
-    }
-    for (int i = 0; i < 26; i++)
-    {
-        printf("%d; ", perem[i]);
-    }
-    printf("\n");
     fill_file(argv[1]);
+    error_handler(SUCCESSFULLY);
 }
+/*
+
+*/

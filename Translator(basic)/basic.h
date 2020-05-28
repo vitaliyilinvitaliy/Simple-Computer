@@ -22,6 +22,7 @@
 #define MEMORY_OVERLOAD 12
 #define LINE_NOT_FOUND 13
 #define TOO_LONG_VARIABLE 14
+#define END_ERROR 15
 
 
 #define INPUT 0x0014
