@@ -1,5 +1,7 @@
 #include "CPU.h"
 
+bool flag_add = false;
+
 int ALU(int command, int operand)
 {
     int value_cell = 0, value_acc = 0;
@@ -20,6 +22,7 @@ int ALU(int command, int operand)
         if (value_acc <= 0x3FFF && value_acc >= -0x3FFF)
         {
             sc_accSet(value_acc);
+            flag_add=true;
         }
         else
         {
@@ -71,6 +74,35 @@ int ALU(int command, int operand)
         }
         break;
     }
+    case 0x60:{
+        //CHL Dima
+        value_acc=value_cell<<1;
+        if (value_acc <= 0x3FFF && value_acc >= -0x3FFF)
+        {
+            sc_accSet(value_acc);
+        }
+        else
+        {
+            sc_regSet(MEMORY_OVERFLOW, 1);
+            return 1;
+        }
+        break;
+    }
+    case 0x61:{
+        //SHL Vova
+        value_acc=value_cell>>1;
+        if (value_acc <= 0x3FFF && value_acc >= -0x3FFF)
+        {
+            sc_accSet(value_acc);
+        }
+        else
+        {
+            sc_regSet(MEMORY_OVERFLOW, 1);
+            return 1;
+        }
+        break;
+    }
+    
     default:
         break;
     }
@@ -248,7 +280,7 @@ int CU(void)
     }
     case 0x55:
     {
-        //JNS
+        //JNS Maks
         sc_accGet(&value);
         if (value > 0x0000)
             sc_instrcSet(operand - 1);
@@ -259,7 +291,21 @@ int CU(void)
         sc_regSet(IGNORING_TACT_PULSES, 1);
         break;
     }
-    
+    case 0x58:{
+        //JP Vitaliy
+        sc_accGet(&value);
+        if(value%2 == 0)
+            sc_instrcSet(operand - 1);
+        break;
+    }
+    case 0x57:{
+        //JC Nastya
+        if(flag_add){
+            flag_add = false;
+            sc_instrcSet(operand - 1);
+        }
+        break;
+    }
     default:
     {
         sc_regSet(CODE_ERROR, 1);
