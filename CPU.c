@@ -204,7 +204,7 @@ int CU(void)
         sc_regSet(CODE_ERROR, 0);
     }
 
-    if (command >= 0x30 && command <= 0x33)
+    if (command >= 0x30 && command <= 0x33||command == 0x60 || command == 0x61)
     {
         if (ALU(command, operand))
         {
