@@ -11,17 +11,13 @@
 #include <sys/time.h>
 #include "CPU.h"
 
-
 int main()
 {
-	rk_mytermsave();
 	enum keys Key = Default;
 	int paintCount = 0;
 	int regime = 0;
-	enum colors regimecolor = green;
 
 	char file_name[50];
-	//rk_mytermregime(regime, 0, 0, 0, 0);
 
 	rk_mytermregime(1, 1, 0, 1, 0);
 
@@ -165,7 +161,8 @@ int main()
 						if (value[0] == '-')
 						{
 							val_copy *= (-1);
-							if(val_copy == 0){
+							if (val_copy == 0)
+							{
 								val_copy = val_copy | (1 << 14);
 							}
 						}
@@ -219,7 +216,7 @@ int main()
 						{
 							val_copy *= (-1);
 						}
-						
+
 						sc_accSet(val_copy);
 					}
 					else
@@ -278,19 +275,6 @@ int main()
 				Key = Default;
 				break;
 			}
-			/*
-				case KeyRegime:{
-					if(regime==0){
-						rk_mytermregime(1, 0, 1, 0, 1);
-						regimecolor=red;
-						regime=1;				
-					}else{
-						rk_mytermregime(0, 0, 1, 0, 1);
-						regimecolor=green;
-						regime=0;
-					}
-					break;
-				}*/
 			default:
 				break;
 			}
@@ -325,7 +309,6 @@ int main()
 		default:
 			break;
 		}
-		
 	}
 
 	rk_mytermregime(0, 0, 1, 1, 1);
@@ -334,24 +317,3 @@ int main()
 	printf("\n");
 	return 0;
 }
-
-/*test file*/
-/*mt_clrscr();
-	struct myBigChars test;
-	int fd = creat("BigChFile.dat",0666);
-	//int fd = open("BigChFile.dat",O_WRONLY);
-	int t1=bc_bigcharwrite(fd,test.Five,2);
-	close(fd);
-	printf("%d %d",fd,t1);
-	long int m[2];
-	int count=0;
-
-	fd = open("BigChFile.dat",O_RDONLY);
-	
-	int t2=bc_bigcharread(fd,m,2,&count);
-	close(fd);
-	
-	
-	int t3=bc_printbigchar(m,5,5,black,white);
-	printf(" %d %d",fd,t2);
-*/

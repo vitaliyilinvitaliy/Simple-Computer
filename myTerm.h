@@ -1,4 +1,5 @@
 #pragma once
+
 enum colors
 {
 	black = 30,

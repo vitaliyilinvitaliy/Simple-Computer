@@ -1,8 +1,5 @@
 #include "myBigChars.h"
 
-
-
-
 int bc_printA(char *str)
 {
     printf("\E(0%s\E(B", str);
@@ -47,10 +44,10 @@ int bc_box(int x1, int y1, int x2, int y2)
 
 int bc_drawInterfase(int paint)
 {
-    
+
     //основная рамка
     mt_clrscr();
-    
+
     sc_printMemory(paint);
     int m = 0;
     sc_memoryGet(paint, &m);
@@ -214,7 +211,7 @@ int bc_bigcharread(int fd, long int *big, int need_count, int *count)
 
 void bc_setvaluebigchar(char s, long int *mas)
 {
-    struct myBigChars BCH={
+    struct myBigChars BCH = {
         {1382171196, 1010976330},
         {269752336, 940576784},
         {270804024, 1006896136},
@@ -232,8 +229,7 @@ void bc_setvaluebigchar(char s, long int *mas)
         {1145316380, 472138820},
         {470025276, 1006896132},
         {470025276, 67372036},
-        {4278190080,255}
-    };
+        {4278190080, 255}};
     switch (s)
     {
     case '0':
@@ -360,7 +356,7 @@ void bc_drawdigit(int digit)
             bc_setvaluebigchar(' ', BigDigit);
             bc_printbigchar(BigDigit, 2, 14, fon, green);
         }
-        snprintf(str,15,"%04X", digit);
+        snprintf(str, 15, "%04X", digit);
         for (int i = 0, x = 10; i < 4; i++, x += 8)
         {
             bc_setvaluebigchar(str[i], BigDigit);

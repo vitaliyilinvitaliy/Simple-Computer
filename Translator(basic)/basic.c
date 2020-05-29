@@ -303,7 +303,6 @@ int is_digit(char *dig)
             return -1;
         }
     }
-
     return 0;
 }
 
@@ -580,10 +579,14 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
         let_merge(parameters, let_line);
         buf_obm = add_perem(parameters[0], false);
 
+        mt_setfgcolor(red);
         if (calcpars(let_line) == 1)
         {
+            mt_setfgcolor(reset);
             exit(1);
         }
+        mt_setfgcolor(reset);
+        
         conversion_rpn(parameters, &let);
         int size_st = size_stack(let);
 
@@ -722,7 +725,6 @@ int add_asm_line(char command[], char parameters[], struct basic_line *basic_lin
         {
             error_handler(END_ERROR);
         }
-
         break;
 
     default:
@@ -794,9 +796,12 @@ void dragging_out_line(char *name_file_asm, char *name_file_bas)
 
 int fill_file(char name[])
 {
+    char name_file_sa[256];
+    strcpy(name_file_sa,"../Translator(asembler)/");
+    strcat(name_file_sa,name);
     FILE *as_file = NULL;
-    as_file = fopen(name, "w");
-
+    as_file = fopen(name_file_sa, "w");
+    
     if (as_file == NULL)
     {
         return 1;
@@ -838,6 +843,3 @@ int main(int argc, char *argv[])
     fill_file(argv[1]);
     error_handler(SUCCESSFULLY);
 }
-/*
-
-*/

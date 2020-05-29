@@ -41,16 +41,18 @@ int chek_arg(int argc, char *argv[])
     }
 }
 
-void succes(char str[]){
+void succes(char str[])
+{
     mt_setfgcolor(green);
-    printf("%s",str);
+    printf("%s", str);
     mt_setfgcolor(reset);
     printf("\n");
 }
 
-void error_pr(char str[]){
+void error_pr(char str[])
+{
     mt_setfgcolor(red);
-    printf("%s",str);
+    printf("%s", str);
     mt_setfgcolor(reset);
     printf("\n");
     exit(EXIT_FAILURE);
@@ -262,29 +264,27 @@ int asm_parser(char *line)
 
 void interpretation(char *asembler, char *object)
 {
-    FILE *obj_file, *asem_file;
+    FILE  *asem_file;
 
     char str[256], command[256];
 
     asem_file = fopen(asembler, "rt");
-    obj_file = fopen(object, "wb");
-    if (asem_file == NULL || obj_file == NULL)
+    
+    if (asem_file == NULL)
     {
         mt_setfgcolor(red);
         printf("COULD NOT OPEN OR CREATE FILE");
         mt_setfgcolor(reset);
         printf("\n");
         fclose(asem_file);
-        fclose(obj_file);
         exit(EXIT_FAILURE);
     }
     else
     {
         succes("ASSEMBLER FILE OPEN");
-        fclose(obj_file);
     }
     int number_str = 0;
-    
+
     while (fgets(str, sizeof(char) * 256, asem_file))
     {
 
@@ -327,15 +327,17 @@ void interpretation(char *asembler, char *object)
 
 int main(int argc, char *argv[])
 {
-
     FILE *obj_file = NULL;
+    char name_file_o[256];
+    strcpy(name_file_o, "../");
 
     int warning = chek_arg(argc, argv);
 
     if (!error_handler(warning))
     {
         interpretation(argv[2], argv[1]);
-        obj_file = fopen(argv[1], "w");
+        strcat(name_file_o, argv[1]);
+        obj_file = fopen(name_file_o, "w");
         if (obj_file == NULL)
         {
             error_pr("COULD NOT OPEN OR CREATE FILE");
@@ -347,7 +349,4 @@ int main(int argc, char *argv[])
     {
         exit(EXIT_FAILURE);
     }
-    /* int k = -0x1111;
-    printf("%d %04X %04X\n",k,k,~k);*/
 }
-/*INTERPRETATION IN THE ASSEMBLER CODE*/

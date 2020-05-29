@@ -93,8 +93,8 @@ int calcpars(char *a)
   int flag = 0,
       p_flag = 0; // flag для счета количества разрядов в числе(чтобы выкинуть
                   // ошибку в случае, если оно больше допустимого), p_flag для
-                  // счета открытых скобок - если после цикла она не равна 0, то
-                  // значит, что где-то не закрыта скобка
+                  // счета открытых скобок - если после цикла она не равна 0,
+                  // то значит, что где-то не закрыта скобка
   for (int i = 2; i < strlen(a); i++)
   {
     if ((a[i] == '+' || a[i] == '-' || a[i] == '*' || a[i] == '/' ||
@@ -111,9 +111,11 @@ int calcpars(char *a)
         ((a[i + 1] >= 'A' && a[i + 1] <= 'Z') &&
          (a[i] >= '0' && a[i] <= '9')) ||
         ((a[i + 1] >= 'A' && a[i + 1] <= 'Z') &&
-         (a[i] >= 'A' && a[i] <= 'Z')))
+         (a[i] >= 'A' && a[i] <= 'Z')) ||
+        (a[i] == ')' && (a[i + 1] >= '0' && a[i + 1] <= '9')) ||
+        (a[i] == '(' && (a[i] >= '0' && a[i] <= '9')))
     {
-      printf("A LETTER AND A NUMBER IN A ROW OR TOO LONG VARIABLE\n");
+      printf("TWO NON-COMPLIMENT SIGNS IN A ROW OR TOO LONG VARIABLE\n");
       return 1;
       //ОШИБКА: подряд идущие переменная и число или слишком длинная
       //переменная
@@ -183,8 +185,10 @@ int calcpars(char *a)
 
 int let_merge(const char *from_let_line, char *to_let_line)
 {
-  for (int i = 0,j = 0; i < strlen(from_let_line); i++){
-    if(from_let_line[i]!=' '&&from_let_line[i]!='\n'&&from_let_line[i]!='\t'){
+  for (int i = 0, j = 0; i < strlen(from_let_line); i++)
+  {
+    if (from_let_line[i] != ' ' && from_let_line[i] != '\n' && from_let_line[i] != '\t')
+    {
       to_let_line[j] = from_let_line[i];
       j++;
     }

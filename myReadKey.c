@@ -11,8 +11,6 @@ int rk_readkey(enum keys *Key)
     //Дескриптор терминала STDIN_FILENO 0
     read(STDIN_FILENO, buffer, 8);
 
-    printf("%s\n", buffer);
-
     if (buffer[0] == 'l')
     {
         (*Key) = KeyLoad;
@@ -66,8 +64,6 @@ int rk_readkey(enum keys *Key)
     {
         (*Key) = KeySetCellValue;
     }
-
-    
 
     return 0;
 }

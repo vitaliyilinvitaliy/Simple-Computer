@@ -25,7 +25,7 @@ int conversion_rpn(const char *fromcalculate, struct stack **let)
 {
     struct stack *SingStack = NULL;
     struct stack *Calculate = NULL;
-    //printf("%s\n",fromcalculate);
+
     int *store = NULL;
     char copy[256][256];
     int j = 0;
@@ -42,7 +42,6 @@ int conversion_rpn(const char *fromcalculate, struct stack **let)
             k++;
             copy[j - 2][k] = '\0';
         }
-        //printf("\n");
     }
     bool flag = false;
 

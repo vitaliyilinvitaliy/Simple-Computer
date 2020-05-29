@@ -4,20 +4,19 @@
 
 enum keys
 {
-    KeyLoad,                //l
-    KeySave,                //s
-    KeyRun,                 //r
-    KeyStep,                //t
-    KeyReset,               //i
-    KeyAccumulator,         //f5
+    KeyLoad,               //l
+    KeySave,               //s
+    KeyRun,                //r
+    KeyStep,               //t
+    KeyReset,              //i
+    KeyAccumulator,        //f5
     KeyInstructionCounter, //f6
-    KeyQuit,                //q
-    KeyRight,               //->
-    KeyLeft,                //<-
-    KeyUp,                  //^
-    KeyDown,                // \/
-    KeySetCellValue,          //-
-    KeyRegime,              //*
+    KeyQuit,               //q
+    KeyRight,              //->
+    KeyLeft,               //<-
+    KeyUp,                 //^
+    KeyDown,               // \/
+    KeySetCellValue,       //.
     Default
 };
 

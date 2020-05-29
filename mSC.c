@@ -331,7 +331,7 @@ void sc_printRegFlag(void)
         mt_setbgcolor(black);
         if (CheckBitRegister == 1)
         {
-            printf("%c   ", f);   
+            printf("%c   ", f);
         }
         else
         {

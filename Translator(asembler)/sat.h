@@ -7,7 +7,6 @@
 #include "mySimpleComputer.h"
 #include "myTerm.h"
 
-
 #define SUCCESSFULLY 0
 #define INVALID_NUMBER_OF_ARGUMENTS 1
 #define INVALID_SIZE_OF_ARGUMENTS 2
@@ -29,8 +28,4 @@ struct command_system
     int operand : 16;
     int com : 7;
 };
-
-
-
-
 

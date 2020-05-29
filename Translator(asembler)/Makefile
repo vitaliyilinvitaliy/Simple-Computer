@@ -16,3 +16,4 @@ build/sat.o: sat.c
 clean:
 	rm -rf build
 	rm -rf sat
+	rm -rf libs
