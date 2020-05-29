@@ -188,6 +188,26 @@ int ComCPU(char *command)
     {
         return 0x55;
     }
+    else if (strcmp(command, "JNC") == 0)
+    {
+        return 0x57;
+    }
+    else if (strcmp(command, "JP") == 0)
+    {
+        return 0x58;
+    }
+    else if (strcmp(command, "JNS") == 0)
+    {
+        return 0x55;
+    }
+    else if (strcmp(command, "CHL") == 0)
+    {
+        return 0x60;
+    }
+    else if (strcmp(command, "SHR") == 0)
+    {
+        return 0x61;
+    }
     else
         error_handler(COMMAND_NOT_FOUND);
 }
@@ -264,12 +284,12 @@ int asm_parser(char *line)
 
 void interpretation(char *asembler, char *object)
 {
-    FILE  *asem_file;
+    FILE *asem_file;
 
     char str[256], command[256];
 
     asem_file = fopen(asembler, "rt");
-    
+
     if (asem_file == NULL)
     {
         mt_setfgcolor(red);
